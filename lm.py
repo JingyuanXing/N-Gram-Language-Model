@@ -43,7 +43,7 @@ class LanguageModel(object):
 
         self.add_beginAndEnd_to_each_sentense()
         self.flatten_text()
-        # self.least_freq_to_UNK()
+        self.least_freq_to_UNK()
         # self.build()
 
         return
@@ -80,15 +80,15 @@ class LanguageModel(object):
 
         return
 
-
-    # change any word that appears less than self.min_freq to "UNK"
+    # takes in self.beginEndFlat
+    # gives out self.UNKreplaced, change any word that appears less than self.min_freq to 'UNK'
     def least_freq_to_UNK(self):
         
-        self.trimmedText = deepcopy(self.inputText)
-        trimCount = Counter(self.trimmedText)
-        for i in range(len(self.trimmedText)):
-            if trimCount[self.trimmedText[i]] < self.min_freq:
-                self.trimmedText[i] = "UNK"
+        self.UNKreplaced = deepcopy(self.beginEndFlat)
+        freqCount = Counter(self.UNKreplaced)
+        for i in range(len(self.UNKreplaced)):
+            if freqCount[self.UNKreplaced[i]] < self.min_freq:
+                self.UNKreplaced[i] = 'UNK'
         return 
 
     """

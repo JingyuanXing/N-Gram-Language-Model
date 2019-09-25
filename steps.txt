@@ -1,7 +1,7 @@
 - def add_beginAndEnd_to_each_sentense
   takes in self.corpus
-  add </s> <s> to the end of each sentence,
-  add <s> to the beginning of each of 50 line, add </s> to the end of each of 50 line
+  add '</s>', '<s>' to the end of each sentence,
+  add '<s>'' to the beginning of each of 50 line, add '</s>' to the end of each of 50 line
   gives out self.beginEnd
 
 - def flatten_text
@@ -11,8 +11,8 @@
 
 
 - def least_freq_to_UNK
-  modify self.beginEnd
-  replace words that appear less than min_freq times by "UNK"
+  modify self.beginEndFlat
+  replace words that appear less than min_freq times by 'UNK'
   output is self.UNKreplaced
 
 
