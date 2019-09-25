@@ -16,6 +16,8 @@ Write your own implementation in this file!
 import argparse
 
 from utils import *
+from collections import Counter
+import string
 
 
 class LanguageModel(object):
@@ -32,17 +34,57 @@ class LanguageModel(object):
         :param uniform: boolean flag, set to True to indicate this model is a simple uniform LM
                         otherwise will be an N-gram model
         """
-        # write your initialize code below
 
-        raise NotImplemented
+        self.inputText = corpus[0]
+        self.ngram = ngram
+        self.min_freq = min_freq
+        self.build()
 
+        return
+
+    # change any word that appears less than self.min_freq to "UNK"
+    def least_freq_to_UNK(self):
+        
+        self.trimmedText = []
+        self.trimmedText = self.trimmedText+self.inputText
+        trimCount = Counter(self.trimmedText)
+        for i in range(len(self.trimmedText)):
+            if trimCount[self.trimmedText[i]] < self.min_freq:
+                self.trimmedText[i] = "UNK"
+        return 
+
+    """
+    Build LM from text corpus
+    """
     def build(self):
-        """
-        Build LM from text corpus
-        """
-        # Write your own implementation here
+        
+        # Change any word that appears less than self.min_freq to "UNK"
+        self.least_freq_to_UNK()
+        
+        ngramList = []
 
-        raise NotImplemented
+        # build the list for uniform and unigram model
+        if (self.ngram == 1):
+            ngramList = self.trimmedText
+
+        # build the list for bigram model
+        if (self.ngram == 2):
+            ngramList = ngramList+self.trimmedText
+            for i in range(len(self.trimmedText)-1):
+                ngramList.append(tuple([self.trimmedText[i], self.trimmedText[i+1]]))
+
+        # build the list for trigram model
+        if (self.ngram == 3):
+            ngramList = ngramList+self.trimmedText
+            for i in range(len(self.trimmedText)-1):
+                ngramList.append(tuple([self.trimmedText[i], self.trimmedText[i+1]]))
+            for i in range(len(self.trimmedText)-2):
+                ngramList.append(tuple([self.trimmedText[i], self.trimmedText[i+1], self.trimmedText[i+2]]))
+
+        # print(ngramList)
+        ngramDict = Counter(ngramList)
+        # print(ngramDict)
+        return ngramDict
 
     def most_common_tokens(self, k):
         """
@@ -100,19 +142,22 @@ if __name__ == '__main__':
     test = preprocess(read_file(args.testfile))
 
     # build language models
+    # print("111111")
     uniform = LanguageModel(train, ngram=1, min_freq=args.min_freq, uniform=True)
+    # print("222222")
     unigram = LanguageModel(train, ngram=1, min_freq=args.min_freq)
+    # print("333333")
     bigram = LanguageModel(train, ngram=2, min_freq=args.min_freq)
+    # print("444444")
     trigram = LanguageModel(train, ngram=3, min_freq=args.min_freq)
 
     # calculate perplexity on test file
-    ppl = calculate_perplexity(
-        models=[uniform, unigram, bigram, trigram],
-        coefs=[args.coef_unif, args.coef_uni, args.coef_bi, args.coef_tri],
-        data=test)
+    # ppl = calculate_perplexity(
+    #     models=[uniform, unigram, bigram, trigram],
+    #     coefs=[args.coef_unif, args.coef_uni, args.coef_bi, args.coef_tri],
+    #     data=test)
 
-    print("Perplexity: {}".format(ppl))
-
+    # print("Perplexity: {}".format(ppl))
 
 
 
