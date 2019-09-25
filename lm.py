@@ -18,6 +18,7 @@ import argparse
 from utils import *
 from collections import Counter
 import string
+from copy import deepcopy
 
 
 class LanguageModel(object):
@@ -34,19 +35,45 @@ class LanguageModel(object):
         :param uniform: boolean flag, set to True to indicate this model is a simple uniform LM
                         otherwise will be an N-gram model
         """
-
-        self.inputText = corpus[0]
+        # self.corpus: the original text
+        self.corpus = corpus
         self.ngram = ngram
         self.min_freq = min_freq
-        self.build()
+        self.uniform = uniform
+
+        self.add_beginAndEnd_to_each_sentense()
+        # self.least_freq_to_UNK()
+        # self.build()
+
+        return
+
+    # takes in self.corpus
+    # gives out self.beginEnd, with <s> and </s> properly added
+    def add_beginAndEnd_to_each_sentense(self):
+        self.beginEnd = deepcopy(self.corpus)
+        # for each of the 50 lists, add <s> to front, add </s> to end
+        for line in self.beginEnd:
+            # add'<s>' to front, add '</s>' to end
+            print("DDD")
+            line.insert(0,'<s>')
+            line.append('</s>')
+
+            # replace each period with two elements '</s>', '<s>'
+            for word in line:
+                if word == '.':
+                    pos = line.index(word)
+                    line[pos:pos+1] = ('</s>', '<s>')
+
+            # get rid of the last two elements, '<s>', '</s>'
+            if line[-1] == '</s>' and line[-2] =='<s>':
+                line = line[:len(line)-2]
 
         return
 
     # change any word that appears less than self.min_freq to "UNK"
     def least_freq_to_UNK(self):
         
-        self.trimmedText = []
-        self.trimmedText = self.trimmedText+self.inputText
+        self.trimmedText = deepcopy(self.inputText)
         trimCount = Counter(self.trimmedText)
         for i in range(len(self.trimmedText)):
             if trimCount[self.trimmedText[i]] < self.min_freq:
@@ -59,7 +86,6 @@ class LanguageModel(object):
     def build(self):
         
         # Change any word that appears less than self.min_freq to "UNK"
-        self.least_freq_to_UNK()
         
         ngramList = []
 
@@ -82,9 +108,9 @@ class LanguageModel(object):
                 ngramList.append(tuple([self.trimmedText[i], self.trimmedText[i+1], self.trimmedText[i+2]]))
 
         # print(ngramList)
-        ngramDict = Counter(ngramList)
+        self.ngramDict = Counter(ngramList)
         # print(ngramDict)
-        return ngramDict
+        return ngramList
 
     def most_common_tokens(self, k):
         """
@@ -106,9 +132,28 @@ def calculate_perplexity(models, coefs, data):
     :param data: test data
     :return: perplexity
     """
-    # Write your own implementation here
+    # perplexity = 1
+    # for model in models:
+    #     if model.ngram = 1:
+    #         if model.uniform:
+    #             for word in data[0]:
+    #                 perplexity *= 1/len(model.trimmedText)
+    #             return perplexity
+    #         else:
+    #             freqCount = Counter(model)
+    #             for word in data[0]:
+    #                 perplexity *= freqCount[word]/len(model.trimmedText)
+    #             return perplexity
 
-    raise NotImplemented
+    #     elif model.ngram = 2:
+    #         return perplexity
+
+    #     elif model.ngram = 3:
+    #         return perplexity
+
+    
+
+    return 
 
 
 # Do not modify this function!
@@ -142,22 +187,22 @@ if __name__ == '__main__':
     test = preprocess(read_file(args.testfile))
 
     # build language models
-    # print("111111")
+    print("111111")
     uniform = LanguageModel(train, ngram=1, min_freq=args.min_freq, uniform=True)
-    # print("222222")
+    print("222222")
     unigram = LanguageModel(train, ngram=1, min_freq=args.min_freq)
-    # print("333333")
+    print("333333")
     bigram = LanguageModel(train, ngram=2, min_freq=args.min_freq)
-    # print("444444")
+    print("444444")
     trigram = LanguageModel(train, ngram=3, min_freq=args.min_freq)
 
     # calculate perplexity on test file
-    # ppl = calculate_perplexity(
-    #     models=[uniform, unigram, bigram, trigram],
-    #     coefs=[args.coef_unif, args.coef_uni, args.coef_bi, args.coef_tri],
-    #     data=test)
+    ppl = calculate_perplexity(
+        models=[uniform, unigram, bigram, trigram],
+        coefs=[args.coef_unif, args.coef_uni, args.coef_bi, args.coef_tri],
+        data=test)
 
-    # print("Perplexity: {}".format(ppl))
+    print("Perplexity: {}".format(ppl))
 
 
 

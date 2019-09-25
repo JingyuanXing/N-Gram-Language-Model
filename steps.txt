@@ -1,9 +1,24 @@
+- def add_beginAndEnd_to_each_sentense
+  modify self.corpus
+  add </s> <s> to the end of each sentence,
+  add <s> to the beginning of each of 50 line, add </s> to the end of each of 50 line
+  output is self.beginEnd
 
-1. build *list of tuples* for uniform, unigram, bigram, trigram, from input text
-   uniform: one word in each tuple,
-   unigram: one word in each tuple,
-   bigram: two words in each tuple,
-   trigram: three words in each tuple
 
-2. use package "from collections import Counter", 
-   use the Counter function to make lists above into dictionary form
+- def least_freq_to_UNK
+  modify self.beginEnd
+  replace words that appear less than min_freq times by "UNK"
+  output is self.UNKreplaced
+
+
+
+- def build
+    build *list of tuples* for uniform, unigram, bigram, trigram, from input text
+    uniform: one word in each tuple,
+    unigram: one word in each tuple,
+    bigram: two words in each tuple,
+    trigram: three words in each tuple
+
+- 
+    use package "from collections import Counter", 
+    use the Counter function to make lists above into dictionary form
