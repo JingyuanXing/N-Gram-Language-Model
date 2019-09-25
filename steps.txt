@@ -1,0 +1,9 @@
+
+1. build *list of tuples* for uniform, unigram, bigram, trigram, from input text
+   uniform: one word in each tuple,
+   unigram: one word in each tuple,
+   bigram: two words in each tuple,
+   trigram: three words in each tuple
+
+2. use package "from collections import Counter", 
+   use the Counter function to make lists above into dictionary form
