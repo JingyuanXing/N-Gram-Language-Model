@@ -42,6 +42,7 @@ class LanguageModel(object):
         self.uniform = uniform
 
         self.add_beginAndEnd_to_each_sentense()
+        self.flatten_text()
         # self.least_freq_to_UNK()
         # self.build()
 
@@ -54,7 +55,6 @@ class LanguageModel(object):
         # for each of the 50 lists, add <s> to front, add </s> to end
         for line in self.beginEnd:
             # add'<s>' to front, add '</s>' to end
-            print("DDD")
             line.insert(0,'<s>')
             line.append('</s>')
 
@@ -69,6 +69,17 @@ class LanguageModel(object):
                 line = line[:len(line)-2]
 
         return
+
+    # takes in self.beginEnd
+    # gives out self.beginEndFlat, which change the list list of 50, to list of 1
+    def flatten_text(self):
+        self.beginEndFlat = []
+        for line in self.beginEnd:
+            for word in line:
+                self.beginEndFlat.append(word)
+
+        return
+
 
     # change any word that appears less than self.min_freq to "UNK"
     def least_freq_to_UNK(self):

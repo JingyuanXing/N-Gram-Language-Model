@@ -1,8 +1,13 @@
 - def add_beginAndEnd_to_each_sentense
-  modify self.corpus
+  takes in self.corpus
   add </s> <s> to the end of each sentence,
   add <s> to the beginning of each of 50 line, add </s> to the end of each of 50 line
-  output is self.beginEnd
+  gives out self.beginEnd
+
+- def flatten_text
+  takes in self.beginEnd
+  change the list list of 50, to list of 1, with all elements in it
+  gives out self.beginEndFlat
 
 
 - def least_freq_to_UNK
