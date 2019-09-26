@@ -119,7 +119,7 @@ class LanguageModel(object):
         # build the list for uniform and unigram model
         if (self.ngram == 1):
             for sentense in self.eachSentense:
-                for word in sentense[2:]:
+                for word in sentense:
                     self.ngramList.append(word)
 
         # build the list for bigram model
@@ -161,6 +161,34 @@ class LanguageModel(object):
         
         return result
 
+def testdata_flat(data):
+    testData = []
+    # flatten data
+    for line in data:
+        for word in line:
+            testData.append(word)
+    # add </s> <s> to test data, replacing periods
+    for word in testData:
+        if word == '.':
+            pos = testData.index(word)
+            testData[pos:pos+1] = ('</s>', '<s>')
+    # add </s> <s> to very front
+    testData.insert(0, '<s>')
+    testData.insert(0, '</s>')
+    # remove </s> <s> at the very end
+    if testData[-2] =='</s>' and testData[-1] == '<s>':
+        testData = testData[:len(testData)-2]
+    return testData
+
+def testdata_cutToSentence(testData):
+    testData_divided = []
+    for word in testData:
+        if word == '</s>':
+            newSentense = []
+            testData_divided.append(newSentense)
+        newSentense.append(word)
+    return testData_divided
+    
 
 def calculate_perplexity(models, coefs, data):
     """
@@ -173,8 +201,8 @@ def calculate_perplexity(models, coefs, data):
     # number of distinct vocabulary, for bigram and trigram smoothing
     vocab_count = len(set(models[0].ngramList))
     # number of tokens in the test data
-    test_size = len(data[0])
-    testData = data[0]
+    testData = testdata_flat(data)
+    test_size = len(testData)
 
     # change any word that is not in the vocabulary to 'UNK'
     for word in testData:
@@ -182,47 +210,46 @@ def calculate_perplexity(models, coefs, data):
             pos = testData.index(word)
             testData[pos] = 'UNK'
 
-    # added </s> <s> in front of each sentense in data
-    testData.insert(0, '<s>')
-    testData.insert(0, '</s>')
-
+    testData = testdata_cutToSentence(testData)
+    
 
     # perplexity tracker, for adding each logged wordPerp, and for performing further calculations
     perplexity = 0
 
     # for each word (token) in test data
-    for word in testData[2:]:
-        # use each ngram model
-        wordPerp = 0
-        for model in models:
-            if model.ngram == 1:
-                # Uniform Model
-                if model.uniform == True:
-                    wordPerp += (coefs[0] * (1/vocab_count))
-                # Unigram Model
-                else:
-                    count_i = model.ngramDict[word]
-                    total_count = len(model.ngramList)
-                    wordPerp += (coefs[1] * (count_i/total_count))
+    for line in testData:
+        for word in line[2:]:
+            # use each ngram model
+            wordPerp = 0
+            for model in models:
+                if model.ngram == 1:
+                    # Uniform Model
+                    if model.uniform == True:
+                        wordPerp += (coefs[0] * (1/vocab_count))
+                    # Unigram Model
+                    else:
+                        count_i = model.ngramDict[word]
+                        total_count = len(model.ngramList)
+                        wordPerp += (coefs[1] * (count_i/total_count))
 
 
-            # Bigram Model
-            elif model.ngram == 2:
-                pos = testData.index(word)
-                count_i_prev = model.ngramDict[(testData[pos-1], word)] + 1
-                count_prev = model.ngramDict[testData[pos-1]] + vocab_count
-                wordPerp += (coefs[2] * (count_i_prev/count_prev))
+                # Bigram Model
+                elif model.ngram == 2:
+                    pos = line.index(word)
+                    count_i_prev = model.ngramDict[(line[pos-1], word)] + 1
+                    count_prev = model.ngramDict[line[pos-1]] + vocab_count
+                    wordPerp += (coefs[2] * (count_i_prev/count_prev))
 
 
-            # Trigram Model
-            elif model.ngram == 3:
-                pos = testData.index(word)
-                count_i_prev_prev = model.ngramDict[(testData[pos-2], testData[pos-1], word)] + 1
-                count_prev_prev = model.ngramDict[(testData[pos-2], testData[pos-1])] + vocab_count
-                wordPerp += (coefs[3] * (count_i_prev_prev/count_prev_prev))
+                # Trigram Model
+                elif model.ngram == 3:
+                    pos = line.index(word)
+                    count_i_prev_prev = model.ngramDict[(line[pos-2], line[pos-1], word)] + 1
+                    count_prev_prev = model.ngramDict[(line[pos-2], line[pos-1])] + vocab_count
+                    wordPerp += (coefs[3] * (count_i_prev_prev/count_prev_prev))
 
-        wordPerp = math.log(wordPerp)
-        perplexity += wordPerp
+            wordPerp = math.log(wordPerp)
+            perplexity += wordPerp
 
     perplexity *= -1
     perplexity /= test_size
@@ -262,9 +289,13 @@ if __name__ == '__main__':
     test = preprocess(read_file(args.testfile))
 
     # build language models
+    # print("111111")
     uniform = LanguageModel(train, ngram=1, min_freq=args.min_freq, uniform=True)
+    # print("222222")
     unigram = LanguageModel(train, ngram=1, min_freq=args.min_freq)
+    # print("333333")
     bigram = LanguageModel(train, ngram=2, min_freq=args.min_freq)
+    # print("444444")
     trigram = LanguageModel(train, ngram=3, min_freq=args.min_freq)
 
     # calculate perplexity on test file
