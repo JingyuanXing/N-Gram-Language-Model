@@ -1,3 +1,6 @@
+
+############################  process train data ################################
+
 - def add_beginAndEnd_to_each_sentense
   takes in self.corpus
    add '</s>', '<s>' to the end of each sentence,
@@ -22,6 +25,7 @@
    self.UNKreplacedBeginEnd is adding a </s> to the very front, and removed a </s> at very end
   gives out self.eachSentense, which is a list list of sentenses
 
+##################################  build  ###################################
 
 - def build
   takes in self.eachSentense
@@ -36,6 +40,14 @@
   use package "from collections import Counter", 
   use the Counter function to make lists above into dictionary form
   we get self.ngramDict
+
+############################  process test data ################################
+
+- process test data
+  in test data, any word that is not in vocabulary is replaced with 'UNK'
+  add </s> <s> to sentence of test data
+
+##########################  calculate perplexity ################################
 
 - def calculate_perplexity
   calculate perplexity for uniorm, unigram, bigram, trigram,

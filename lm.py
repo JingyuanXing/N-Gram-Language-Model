@@ -171,11 +171,20 @@ def calculate_perplexity(models, coefs, data):
     :param data: test data
     :return: perplexity
     """
+    # change any word that is not in the vocabulary to 'UNK'
+    for line in data:
+        for word in line:
+            if word not in set(models[0].ngramList):
+                pos = line.index(word)
+                line[pos] = 'UNK'
+
     # added </s> <s> in front of each sentense in data
     for line in data:
         line.insert(0, '<s>')
         line.insert(0, '</s>')
+        
 
+    # start t ocalculate perplexity for each Language Model
     perplexity = 1
 
     for model in models:
