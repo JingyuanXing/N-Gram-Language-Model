@@ -59,18 +59,17 @@ class LanguageModel(object):
 
         # for each of the 50 lists, add <s> to front, add </s> to end
         for line in self.corpus:
-            # add'<s>' to front, add '</s>' to end
+            # add '</s>', '<s>' to the front
             line.insert(0,'<s>')
-            line.append('</s>')
+            line.insert(0,'</s>')
 
-            # replace each period with two elements '</s>', '<s>'
-            for word in line:
-                if word == '.':
-                    pos = line.index(word)
-                    line[pos:pos+1] = ('</s>', '<s>')
+            # add two elements '</s>', '<s>' after each period
+            for i in range(len(line)):
+                if line[i] == '.':
+                    line[i+1:i+1] = ('</s>', '<s>')
 
             # get rid of the last two elements, '<s>', '</s>'
-            if line[-2] =='<s>' and line[-1] == '</s>':
+            if line[-2] =='</s>' and line[-1] == '<s>':
                 line = line[:len(line)-2]
 
 
@@ -118,15 +117,13 @@ class LanguageModel(object):
         """
 
         self.ngramList = []
-        self.uniList = []
 
         # build the list for uniform and unigram model
         if (self.ngram == 1):
             for sentense in self.eachSentense:
                 for word in sentense:
                     self.ngramList.append(word)
-                    # for most common word count
-                    self.uniList.append(word)
+
 
         # build the list for bigram model
         if (self.ngram == 2):
@@ -137,8 +134,6 @@ class LanguageModel(object):
                     self.ngramList.append(sentense[pos-1])
                     # two words tuple, i and i-1
                     self.ngramList.append(tuple([sentense[pos-1], word]))
-                    # for most common word count
-                    self.uniList.append(word)
 
 
         # build the list for trigram model
@@ -150,13 +145,11 @@ class LanguageModel(object):
                     self.ngramList.append(tuple([sentense[pos-2], sentense[pos-1]]))
                     # three words tuple, i, i-1, i-2
                     self.ngramList.append(tuple([sentense[pos-2], sentense[pos-1], word]))
-                    # for most common word count
-                    self.uniList.append(word)
+        
 
         # print(self.ngramList)
         self.ngramDict = Counter(self.ngramList)
         # print(self.ngramDict)
-        self.uniDict = Counter(self.uniList)
     
 
 
@@ -167,18 +160,20 @@ class LanguageModel(object):
         Sort according to ascending alphabet order when multiple words have same frequency
         :return: list[tuple(token, freq)] of top k most common tokens
         """
+        self.newDict = deepcopy(self.ngramDict)
 
         try:
-            del self.uniDict['</s>']
-            del self.uniDict['<s>']
+            del self.newDict['</s>']
+            del self.newDict['<s>']
         except:
             pass
-        self.dictkeyvalueSorted = sorted(self.uniDict.items(), key=lambda kv: kv[1],reverse=True)
+
+        self.dictkeyvalueSorted = sorted(self.newDict.items(), key=lambda kv: kv[1],reverse=True)
 
         result = []
         for keyvaluepair in self.dictkeyvalueSorted[:k]:
             result.append(keyvaluepair)
-        # print("most common word result: ", result)
+        print("most common word result: ", result)
         return result
 
 def testdata_flat(data):
@@ -188,10 +183,9 @@ def testdata_flat(data):
         for word in line:
             testData.append(word)
     # add </s> <s> to test data, replacing periods
-    for word in testData:
-        if word == '.':
-            pos = testData.index(word)
-            testData[pos:pos+1] = ('</s>', '<s>')
+    for i in range(len(testData)):
+        if testData[i] == '.':
+            testData[i+1:i+1] = ('</s>', '<s>')
     # add </s> <s> to very front
     testData.insert(0, '<s>')
     testData.insert(0, '</s>')
@@ -312,13 +306,13 @@ if __name__ == '__main__':
     test = preprocess(read_file(args.testfile))
 
     # build language models
-    # print("111111")
+    print("111111")
     uniform = LanguageModel(train, ngram=1, min_freq=args.min_freq, uniform=True)
-    # print("222222")
+    print("222222")
     unigram = LanguageModel(train, ngram=1, min_freq=args.min_freq)
-    # print("333333")
+    print("333333")
     bigram = LanguageModel(train, ngram=2, min_freq=args.min_freq)
-    # print("444444")
+    print("444444")
     trigram = LanguageModel(train, ngram=3, min_freq=args.min_freq)
 
     # calculate perplexity on test file
