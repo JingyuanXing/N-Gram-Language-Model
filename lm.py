@@ -50,14 +50,13 @@ class LanguageModel(object):
         self.divide_each_sentense()
         self.build()
 
-        return
 
     # takes in self.corpus
     # gives out self.beginEnd, with <s> and </s> properly added
     def add_beginAndEnd_to_each_sentense(self):
-        self.beginEnd = deepcopy(self.corpus)
+
         # for each of the 50 lists, add <s> to front, add </s> to end
-        for line in self.beginEnd:
+        for line in self.corpus:
             # add'<s>' to front, add '</s>' to end
             line.insert(0,'<s>')
             line.append('</s>')
@@ -72,28 +71,25 @@ class LanguageModel(object):
             if line[-2] =='<s>' and line[-1] == '</s>':
                 line = line[:len(line)-2]
 
-        return
 
     # takes in self.beginEnd
     # gives out self.beginEndFlat, which change the list list of 50, to list of 1
     def flatten_text(self):
+
         self.beginEndFlat = []
-        for line in self.beginEnd:
+        for line in self.corpus:
             for word in line:
                 self.beginEndFlat.append(word)
 
-        return
 
     # takes in self.beginEndFlat
     # gives out self.UNKreplaced, change any word that appears less than self.min_freq to 'UNK'
     def least_freq_to_UNK(self):
         
-        self.UNKreplaced = deepcopy(self.beginEndFlat)
-        freqCount = Counter(self.UNKreplaced)
-        for i in range(len(self.UNKreplaced)):
-            if freqCount[self.UNKreplaced[i]] < self.min_freq:
-                self.UNKreplaced[i] = 'UNK'
-        return 
+        freqCount = Counter(self.beginEndFlat)
+        for i in range(len(self.beginEndFlat)):
+            if freqCount[self.beginEndFlat[i]] < self.min_freq:
+                self.beginEndFlat[i] = 'UNK'
 
     # takes in self.UNKreplaced
     # self.UNKreplacedBeginEnd, added </s> to beginning of self.UNKreplaced, and got rid of the very last </s>
@@ -101,19 +97,17 @@ class LanguageModel(object):
     def divide_each_sentense(self):
 
         # preprocess so that each sentense begin with </s> <s> and end with nothing
-        self.UNKreplacedBeginEnd = deepcopy(self.UNKreplaced)
-        self.UNKreplacedBeginEnd.insert(0, '</s>')
-        self.UNKreplacedBeginEnd = self.UNKreplacedBeginEnd[:-1]
+        self.beginEndFlat.insert(0, '</s>')
+        self.beginEndFlat = self.beginEndFlat[:-1]
 
         # turn each sentense into a list
         self.eachSentense = []
-        for word in self.UNKreplacedBeginEnd:
+        for word in self.beginEndFlat:
             if word == '</s>':
                 newSentense = []
                 self.eachSentense.append(newSentense)
             newSentense.append(word)
 
-        return
 
 
     def build(self):
@@ -152,18 +146,20 @@ class LanguageModel(object):
         # print(self.ngramList)
         self.ngramDict = Counter(self.ngramList)
         # print(self.ngramDict)
-        return
 
-    def most_common_tokens(self, k):
+
+    def most_common_words(self, k):
         """
         This function will only be called after the language model has been built
         Your return should be sorted in descending order of frequency
         Sort according to ascending alphabet order when multiple words have same frequency
         :return: list[tuple(token, freq)] of top k most common tokens
         """
-        # Write your own implementation here
-
-        raise NotImplemented
+        result = []
+        for word in self.ngramDict[:k]:
+            result.append(tuple([word, self.ngramDict[word]]))
+        
+        return result
 
 
 def calculate_perplexity(models, coefs, data):
@@ -266,13 +262,9 @@ if __name__ == '__main__':
     test = preprocess(read_file(args.testfile))
 
     # build language models
-    # print("111111")
     uniform = LanguageModel(train, ngram=1, min_freq=args.min_freq, uniform=True)
-    # print("222222")
     unigram = LanguageModel(train, ngram=1, min_freq=args.min_freq)
-    # print("333333")
     bigram = LanguageModel(train, ngram=2, min_freq=args.min_freq)
-    # print("444444")
     trigram = LanguageModel(train, ngram=3, min_freq=args.min_freq)
 
     # calculate perplexity on test file
