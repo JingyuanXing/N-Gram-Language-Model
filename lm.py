@@ -185,7 +185,7 @@ def calculate_perplexity(models, coefs, data):
                 perp_uniform = 1
                 for line in data:
                     for word in line:
-                        total_length = len(model.ngramList)
+                        total_length = len(set(model.ngramList))
                         perp_uniform *= 1/total_length
                         # print("In Uniform, perp: ", perp_uniform)
 
