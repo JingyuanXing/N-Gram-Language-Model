@@ -186,6 +186,8 @@ def calculate_perplexity(models, coefs, data):
 
     # start t ocalculate perplexity for each Language Model
     perplexity = 1
+    # number of distinct vocabulary, for bigram and trigram smoothing
+    vocab_count = len(set(models[0].ngramList))
 
     for model in models:
         if model.ngram == 1:
@@ -218,7 +220,7 @@ def calculate_perplexity(models, coefs, data):
                 for word in line[2:]:
                     pos = line.index(word)
                     count_i_prev = model.ngramDict[(line[pos-1], word)] + 1
-                    count_prev = model.ngramDict[line[pos-1]] + len(model.ngramDict)
+                    count_prev = model.ngramDict[line[pos-1]] + vocab_count
                     perp_bigram *= count_i_prev/count_prev
                     # print("tuple: ", (line[pos-1], word))
                     # print("count_tuple: ", count_i_prev)
@@ -234,7 +236,7 @@ def calculate_perplexity(models, coefs, data):
                 for word in line[2:]:
                     pos = line.index(word)
                     count_i_prev_prev = model.ngramDict[(line[pos-2], line[pos-1], word)] + 1
-                    count_prev_prev = model.ngramDict[(line[pos-2], line[pos-1])] + len(model.ngramDict)
+                    count_prev_prev = model.ngramDict[(line[pos-2], line[pos-1])] + vocab_count
                     perp_trigram *= count_i_prev_prev/count_prev_prev
                     # print("this three tuple: ", count_i_prev_prev)
                     # print("prev two tuple: ", count_prev_prev)
