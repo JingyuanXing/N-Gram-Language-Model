@@ -171,8 +171,10 @@ def calculate_perplexity(models, coefs, data):
     :param data: test data
     :return: perplexity
     """
-
-    print(data)
+    # added </s> <s> in front of each sentense in data
+    for line in data:
+        line.insert(0, '<s>')
+        line.insert(0, '</s>')
 
     perplexity = 1
     for model in models:
@@ -182,24 +184,37 @@ def calculate_perplexity(models, coefs, data):
                 perp_uniform = 1
                 for line in data:
                     for word in line:
-                        perp_uniform *= 1/len(model.ngramList)
-                        print("In Uniform, perp: ", perp_uniform)
+                        total_length = len(model.ngramList)
+                        perp_uniform *= 1/total_length
+                        # print("In Uniform, perp: ", perp_uniform)
 
             # Unigram Model
             else:
                 perp_unigram = 1
                 for line in data:
                     for word in line:
-                        perp_unigram *= model.ngramDict[word]/len(model.ngramList)
+                        count_i = model.ngramDict[word]
+                        total_length = len(model.ngramList)
+                        perp_unigram *= count_i/total_length
                         # print("freq: ", model.ngramDict[word])
                         # print("prob: ", model.ngramDict[word]/len(model.ngramList))
-                        print("In Unigram, perp: ", perp_unigram)
+                        # print("In Unigram, perp: ", perp_unigram)
 
         # Bigram Model
         elif model.ngram == 2:
-
-            # print("try to match: ", model.ngramDict[('our', 'business')])
-            print("In Bigram, perp: ", perplexity)
+            perp_bigram = 1
+            for line in data:
+                for word in line[2:]:
+                    pos = line.index(word)
+                    count_i_prev = model.ngramDict[(line[pos-1], word)]
+                    count_prev = model.ngramDict[line[pos-1]]
+                    perp_bigram *= count_i_prev/count_prev
+                    # print("tuple: ", (line[pos-1], word))
+                    # print("count_tuple: ", count_i_prev)
+                    # print(line[pos-1])
+                    # print("count_prev: ", count_prev)
+                    # print('\n')
+                    print("In Bigram, perp: ", perp_bigram)
 
         # Trigram Model
         elif model.ngram == 3:
