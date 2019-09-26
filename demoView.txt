@@ -1,0 +1,33 @@
+Self.beginEndFlat
+[<s> the dog barked </s> <s> the cat meowed </s> <s> the cat mowed </s>]
+
+Self.eachSentense
+[</s> <s> the dog barked] 
+[</s> <s> the cat meowed]
+[</s> <s> the cat mowed]
+
+
+$ $ the dog barked
+$ $ the cat meowed
+$ $ the cat meowed
+
+$ $ 3
+$ the 3
+the dog 1
+dog barked 1
+the cat 2
+cat meowed 2
+
+<s> the dog barked </s>
+<s> the cat meowed </s>
+<s> the cat meowed </s>
+
+<s> the 3
+the dog 1
+dog barked 1
+barked </s> 1
+the cat 2
+cat meowed 2
+meowed </s> 2
+
+

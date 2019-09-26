@@ -44,6 +44,7 @@ class LanguageModel(object):
         self.add_beginAndEnd_to_each_sentense()
         self.flatten_text()
         self.least_freq_to_UNK()
+        self.divide_each_sentense()
         # self.build()
 
         return
@@ -65,7 +66,7 @@ class LanguageModel(object):
                     line[pos:pos+1] = ('</s>', '<s>')
 
             # get rid of the last two elements, '<s>', '</s>'
-            if line[-1] == '</s>' and line[-2] =='<s>':
+            if line[-2] =='<s>' and line[-1] == '</s>':
                 line = line[:len(line)-2]
 
         return
@@ -91,37 +92,51 @@ class LanguageModel(object):
                 self.UNKreplaced[i] = 'UNK'
         return 
 
+    # takes in self.UNKreplaced
+    # self.UNKreplacedBeginEnd, added </s> to beginning of self.UNKreplaced, and got rid of the very last </s>
+    # gives out self.eachSentense, which is a list list of each sentense, with </s> <s> in front, and nothing in end
+    def divide_each_sentense(self):
+
+        # preprocess so that each sentense begin with </s> <s> and end with nothing
+        self.UNKreplacedBeginEnd = deepcopy(self.UNKreplaced)
+        self.UNKreplacedBeginEnd.insert(0, '</s>')
+        self.UNKreplacedBeginEnd = self.UNKreplacedBeginEnd[:-1]
+
+        # turn each sentense into a list
+        self.eachSentense = []
+        for word in self.UNKreplacedBeginEnd:
+            if word == '</s>':
+                newSentense = []
+                self.eachSentense.append(newSentense)
+            newSentense.append(word)
+
+        return
+
     """
     Build LM from text corpus
     """
     def build(self):
         
-        # Change any word that appears less than self.min_freq to "UNK"
-        
-        ngramList = []
-
         # build the list for uniform and unigram model
-        if (self.ngram == 1):
-            ngramList = self.trimmedText
+        self.ngramList = deepcopy(self.UNKreplaced)
 
         # build the list for bigram model
         if (self.ngram == 2):
-            ngramList = ngramList+self.trimmedText
-            for i in range(len(self.trimmedText)-1):
-                ngramList.append(tuple([self.trimmedText[i], self.trimmedText[i+1]]))
+            for word in self.UNKreplaced[1:]:
+                pos = self.UNKreplaced.index(word)
+                self.ngramList.append(tuple([self.UNKreplaced[pos-1], word]))
 
         # build the list for trigram model
         if (self.ngram == 3):
-            ngramList = ngramList+self.trimmedText
-            for i in range(len(self.trimmedText)-1):
-                ngramList.append(tuple([self.trimmedText[i], self.trimmedText[i+1]]))
-            for i in range(len(self.trimmedText)-2):
-                ngramList.append(tuple([self.trimmedText[i], self.trimmedText[i+1], self.trimmedText[i+2]]))
+            for i in range(len(self.UNKreplaced)-1):
+                self.ngramList.append(tuple([self.UNKreplaced[i], self.UNKreplaced[i+1]]))
+            for i in range(len(self.UNKreplaced)-2):
+                self.ngramList.append(tuple([self.UNKreplaced[i], self.UNKreplaced[i+1], self.UNKreplaced[i+2]]))
 
         # print(ngramList)
-        self.ngramDict = Counter(ngramList)
+        self.ngramDict = Counter(self.ngramList)
         # print(ngramDict)
-        return ngramList
+        return self.ngramList
 
     def most_common_tokens(self, k):
         """
