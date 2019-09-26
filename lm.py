@@ -117,14 +117,16 @@ class LanguageModel(object):
         """
 
         self.ngramList = []
+        self.commonList = []
 
         # build the list for uniform and unigram model
         if (self.ngram == 1):
             for sentense in self.eachSentense:
                 for word in sentense:
                     self.ngramList.append(word)
+                    self.commonList.append(word)
             if self.uniform == True:
-                self.ngramList = set(self.ngramList)
+                self.commonList = set(self.commonList)
 
 
         # build the list for bigram model
@@ -162,9 +164,9 @@ class LanguageModel(object):
         Sort according to ascending alphabet order when multiple words have same frequency
         :return: list[tuple(token, freq)] of top k most common tokens
         """
-    
-        self.newDict = deepcopy(self.ngramDict)
-
+        
+        self.newList = deepcopy(self.commonList)
+        self.newDict = Counter(self.newList)
         try:
             del self.newDict['</s>']
             del self.newDict['<s>']
