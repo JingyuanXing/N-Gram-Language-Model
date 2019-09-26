@@ -218,7 +218,16 @@ def calculate_perplexity(models, coefs, data):
 
         # Trigram Model
         elif model.ngram == 3:
-            print("In Trigram, perp: ", perplexity)
+            perp_trigram = 1
+            for line in data:
+                for word in line[2:]:
+                    pos = line.index(word)
+                    count_i_prev_prev = model.ngramDict[(line[pos-2], line[pos-1], word)]
+                    count_prev_prev = model.ngramDict[(line[pos-2], line[pos-1])]
+                    perp_trigram *= count_i_prev_prev/count_prev_prev
+                    print("this three tuple: ", count_i_prev_prev)
+                    print("prev two tuple: ", count_prev_prev)
+                    print("In Trigram, perp: ", perp_trigram)
 
     return 
 
