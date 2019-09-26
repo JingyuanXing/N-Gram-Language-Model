@@ -2,32 +2,28 @@ Self.beginEndFlat
 [<s> the dog barked </s> <s> the cat meowed </s> <s> the cat mowed </s>]
 
 Self.eachSentense
-[</s> <s> the dog barked] 
+[[</s> <s> the dog barked] 
 [</s> <s> the cat meowed]
-[</s> <s> the cat mowed]
+[</s> <s> the cat meowed]]
 
+Unigram:
+self.ngramList = [the dog barked 
+                  the cat meowed 
+                  the cat meowed]
 
-$ $ the dog barked
-$ $ the cat meowed
-$ $ the cat meowed
+Bigram:
+self.ngramList = [<s> the dog 
+                  <s> the cat
+                  <s> the cat
+                  (<s>, the) (the, dog) (dog, barked)
+                  (<s>, the) (the, cat) (cat, meowed)
+                  (<s>, the) (the, cat) (cat, meowed)]]
 
-$ $ 3
-$ the 3
-the dog 1
-dog barked 1
-the cat 2
-cat meowed 2
-
-<s> the dog barked </s>
-<s> the cat meowed </s>
-<s> the cat meowed </s>
-
-<s> the 3
-the dog 1
-dog barked 1
-barked </s> 1
-the cat 2
-cat meowed 2
-meowed </s> 2
-
+Trigram:
+self.ngramList = [(</s>, <s>) (<s>, the) (the, dog)
+                  (</s>, <s>) (<s>, the) (the, cat)
+                  (</s>, <s>) (<s>, the) (the, cat)
+                  (</s>, <s>, the) (<s>, the, dog) (the, dog, barked)
+                  (</s>, <s>, the) (<s>, the, cat) (the, cat, meowed)
+                  (</s>, <s>, the) (<s>, the, cat) (the, cat, meowed)]]
 

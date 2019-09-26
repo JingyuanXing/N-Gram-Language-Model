@@ -1,35 +1,35 @@
 - def add_beginAndEnd_to_each_sentense
   takes in self.corpus
-  add '</s>', '<s>' to the end of each sentence,
-  add '<s>'' to the beginning of each of 50 line, add '</s>' to the end of each of 50 line
+   add '</s>', '<s>' to the end of each sentence,
+   add '<s>'' to the beginning of each of 50 line, add '</s>' to the end of each of 50 line
   gives out self.beginEnd
 
 
 - def flatten_text
   takes in self.beginEnd
-  change the list list of 50, to list of 1, with all elements in it
+   change the list list of 50, to list of 1, with all elements in it
   gives out self.beginEndFlat
 
 
 - def least_freq_to_UNK
   takes in self.beginEndFlat
-  replace words which total appearence less than min_freq times by 'UNK' (think, replace UNK for total appearence, or for appearence in each sentense? This can be adjusted by change original input text from self.beginEndFlat to self.eachSentense)
+   replace words which total appearence less than min_freq times by 'UNK' (think, replace UNK for total appearence, or for appearence in each sentense? This can be adjusted by change original input text from self.beginEndFlat to self.eachSentense)
   gives out self.UNKreplaced
 
 
 - def divide_each_sentense
   takes in self.UNKreplaceBeginEnd
-  self.UNKreplacedBeginEnd is adding a </s> to the very front, and removed a </s> at very end
+   self.UNKreplacedBeginEnd is adding a </s> to the very front, and removed a </s> at very end
   gives out self.eachSentense, which is a list list of sentenses
 
 - def build
-  takes in self.UNKreplaced
+  takes in self.eachSentense
     build *list of tuples* for uniform, unigram, bigram, trigram, from input text
-    uniform: same as self.UNKreplaced, no change,
-    unigram: same as self.UNKreplaced, no change,
-    bigram: two words in each tuple,
-    trigram: three words in each tuple
-  gives out self.ngramList
+    uniform: single words, exclude </s> <s>
+    unigram: single words, exclude </s> <s>
+    bigram: two words in each tuple, with single words for i-1
+    trigram: three words in each tuple, with two-words-tuple for i-1, i-2
+  we get self.ngramList
 
 - 
     use package "from collections import Counter", 

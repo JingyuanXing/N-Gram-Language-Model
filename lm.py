@@ -45,7 +45,7 @@ class LanguageModel(object):
         self.flatten_text()
         self.least_freq_to_UNK()
         self.divide_each_sentense()
-        # self.build()
+        self.build()
 
         return
 
@@ -117,21 +117,34 @@ class LanguageModel(object):
     """
     def build(self):
         
+        self.ngramList = []
+
         # build the list for uniform and unigram model
-        self.ngramList = deepcopy(self.UNKreplaced)
+        if (self.ngram == 1):
+            for sentense in self.eachSentense:
+                for word in sentense[2:]:
+                    self.ngramList.append(word)
 
         # build the list for bigram model
         if (self.ngram == 2):
-            for word in self.UNKreplaced[1:]:
-                pos = self.UNKreplaced.index(word)
-                self.ngramList.append(tuple([self.UNKreplaced[pos-1], word]))
+            for sentense in self.eachSentense:
+                for word in sentense[2:]:
+                    pos = sentense.index(word)
+                    # single words, i
+                    self.ngramList.append(sentense[pos-1])
+                    # two words tuple, i and i-1
+                    self.ngramList.append(tuple([sentense[pos-1], word]))
+
 
         # build the list for trigram model
         if (self.ngram == 3):
-            for i in range(len(self.UNKreplaced)-1):
-                self.ngramList.append(tuple([self.UNKreplaced[i], self.UNKreplaced[i+1]]))
-            for i in range(len(self.UNKreplaced)-2):
-                self.ngramList.append(tuple([self.UNKreplaced[i], self.UNKreplaced[i+1], self.UNKreplaced[i+2]]))
+            for sentense in self.eachSentense:
+                for word in sentense[2:]:
+                    pos = sentense.index(word)
+                    # two words, i-1, i-2
+                    self.ngramList.append(tuple([sentense[pos-2], sentense[pos-1]]))
+                    # three words tuple, i, i-1, i-2
+                    self.ngramList.append(tuple([sentense[pos-2], sentense[pos-1], word]))
 
         # print(ngramList)
         self.ngramDict = Counter(self.ngramList)
