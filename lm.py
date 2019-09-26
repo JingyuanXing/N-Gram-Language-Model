@@ -112,11 +112,11 @@ class LanguageModel(object):
 
         return
 
-    """
-    Build LM from text corpus
-    """
+
     def build(self):
-        
+        """
+        Build LM from text corpus
+        """
         self.ngramList = []
 
         # build the list for uniform and unigram model
@@ -148,7 +148,7 @@ class LanguageModel(object):
 
         # print(ngramList)
         self.ngramDict = Counter(self.ngramList)
-        # print(ngramDict)
+        # print(self.ngramDict)
         return self.ngramList
 
     def most_common_tokens(self, k):
@@ -171,26 +171,27 @@ def calculate_perplexity(models, coefs, data):
     :param data: test data
     :return: perplexity
     """
-    # perplexity = 1
-    # for model in models:
-    #     if model.ngram = 1:
-    #         if model.uniform:
-    #             for word in data[0]:
-    #                 perplexity *= 1/len(model.trimmedText)
-    #             return perplexity
-    #         else:
-    #             freqCount = Counter(model)
-    #             for word in data[0]:
-    #                 perplexity *= freqCount[word]/len(model.trimmedText)
-    #             return perplexity
+    print(data)
+    perplexity = 1
+    for model in models:
+        if model.ngram == 1:
+            # Uniform Model
+            if model.uniform == True:
+                for word in data[0]:
+                    perplexity *= 1/len(model.ngramList)
+                    print("In Uniform, perp: ", perplexity)
 
-    #     elif model.ngram = 2:
-    #         return perplexity
+            # Unigram Model
+            else:
+                print("In Unigram, perp: ", perplexity)
 
-    #     elif model.ngram = 3:
-    #         return perplexity
+        # Bigram Model
+        elif model.ngram == 2:
+            print("In Bigram, perp: ", perplexity)
 
-    
+        # Trigram Model
+        elif model.ngram == 3:
+            print("In Trigram, perp: ", perplexity)
 
     return 
 
