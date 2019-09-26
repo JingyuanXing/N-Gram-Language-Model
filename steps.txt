@@ -22,6 +22,7 @@
    self.UNKreplacedBeginEnd is adding a </s> to the very front, and removed a </s> at very end
   gives out self.eachSentense, which is a list list of sentenses
 
+
 - def build
   takes in self.eachSentense
     build *list of tuples* for uniform, unigram, bigram, trigram, from input text
@@ -31,6 +32,22 @@
     trigram: three words in each tuple, with two-words-tuple for i-1, i-2
   we get self.ngramList
 
-- 
-    use package "from collections import Counter", 
-    use the Counter function to make lists above into dictionary form
+- def build
+  use package "from collections import Counter", 
+  use the Counter function to make lists above into dictionary form
+  we get self.ngramDict
+
+- def calculate_perplexity
+  calculate perplexity for uniorm, unigram, bigram, trigram,
+  according to dictionary counts
+
+- NOW: take care of zero appearence problem using smoothing
+
+
+
+
+
+
+
+
+

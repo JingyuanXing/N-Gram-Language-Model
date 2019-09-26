@@ -177,6 +177,7 @@ def calculate_perplexity(models, coefs, data):
         line.insert(0, '</s>')
 
     perplexity = 1
+
     for model in models:
         if model.ngram == 1:
             # Uniform Model
@@ -214,8 +215,8 @@ def calculate_perplexity(models, coefs, data):
                     # print("count_tuple: ", count_i_prev)
                     # print(line[pos-1])
                     # print("count_prev: ", count_prev)
-                    # print('\n')
                     # print("In Bigram, perp: ", perp_bigram)
+                    # print('\n')
 
         # Trigram Model
         elif model.ngram == 3:
