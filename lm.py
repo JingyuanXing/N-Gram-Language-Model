@@ -192,10 +192,11 @@ def calculate_perplexity(models, coefs, data):
             else:
                 perp_unigram = 1
                 for line in data:
-                    for word in line:
+                    for word in line[2:]:
                         count_i = model.ngramDict[word]
                         total_length = len(model.ngramList)
                         perp_unigram *= count_i/total_length
+                        # print(word)
                         # print("freq: ", model.ngramDict[word])
                         # print("prob: ", model.ngramDict[word]/len(model.ngramList))
                         # print("In Unigram, perp: ", perp_unigram)
@@ -214,7 +215,7 @@ def calculate_perplexity(models, coefs, data):
                     # print(line[pos-1])
                     # print("count_prev: ", count_prev)
                     # print('\n')
-                    print("In Bigram, perp: ", perp_bigram)
+                    # print("In Bigram, perp: ", perp_bigram)
 
         # Trigram Model
         elif model.ngram == 3:
@@ -225,9 +226,9 @@ def calculate_perplexity(models, coefs, data):
                     count_i_prev_prev = model.ngramDict[(line[pos-2], line[pos-1], word)]
                     count_prev_prev = model.ngramDict[(line[pos-2], line[pos-1])]
                     perp_trigram *= count_i_prev_prev/count_prev_prev
-                    print("this three tuple: ", count_i_prev_prev)
-                    print("prev two tuple: ", count_prev_prev)
-                    print("In Trigram, perp: ", perp_trigram)
+                    # print("this three tuple: ", count_i_prev_prev)
+                    # print("prev two tuple: ", count_prev_prev)
+                    # print("In Trigram, perp: ", perp_trigram)
 
     return 
 
