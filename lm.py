@@ -146,10 +146,10 @@ class LanguageModel(object):
                     # three words tuple, i, i-1, i-2
                     self.ngramList.append(tuple([sentense[pos-2], sentense[pos-1], word]))
 
-        # print(ngramList)
+        # print(self.ngramList)
         self.ngramDict = Counter(self.ngramList)
         # print(self.ngramDict)
-        return self.ngramList
+        return
 
     def most_common_tokens(self, k):
         """
@@ -172,18 +172,25 @@ def calculate_perplexity(models, coefs, data):
     :return: perplexity
     """
     print(data)
+
     perplexity = 1
     for model in models:
         if model.ngram == 1:
             # Uniform Model
             if model.uniform == True:
+                perp_uniform = 1
                 for word in data[0]:
-                    perplexity *= 1/len(model.ngramList)
-                    print("In Uniform, perp: ", perplexity)
+                    perp_uniform *= 1/len(model.ngramList)
+                    print("In Uniform, perp: ", perp_uniform)
 
             # Unigram Model
             else:
-                print("In Unigram, perp: ", perplexity)
+                perp_unigram = 1
+                for word in data[0]:
+                    perp_unigram *= model.ngramDict[word]/len(model.ngramList)
+                    # print("freq: ", model.ngramDict[word])
+                    # print("prob: ", model.ngramDict[word]/len(model.ngramList))
+                    print("In Unigram, perp: ", perp_unigram)
 
         # Bigram Model
         elif model.ngram == 2:
