@@ -171,6 +171,7 @@ def calculate_perplexity(models, coefs, data):
     :param data: test data
     :return: perplexity
     """
+
     print(data)
 
     perplexity = 1
@@ -179,21 +180,25 @@ def calculate_perplexity(models, coefs, data):
             # Uniform Model
             if model.uniform == True:
                 perp_uniform = 1
-                for word in data[0]:
-                    perp_uniform *= 1/len(model.ngramList)
-                    print("In Uniform, perp: ", perp_uniform)
+                for line in data:
+                    for word in line:
+                        perp_uniform *= 1/len(model.ngramList)
+                        print("In Uniform, perp: ", perp_uniform)
 
             # Unigram Model
             else:
                 perp_unigram = 1
-                for word in data[0]:
-                    perp_unigram *= model.ngramDict[word]/len(model.ngramList)
-                    # print("freq: ", model.ngramDict[word])
-                    # print("prob: ", model.ngramDict[word]/len(model.ngramList))
-                    print("In Unigram, perp: ", perp_unigram)
+                for line in data:
+                    for word in line:
+                        perp_unigram *= model.ngramDict[word]/len(model.ngramList)
+                        # print("freq: ", model.ngramDict[word])
+                        # print("prob: ", model.ngramDict[word]/len(model.ngramList))
+                        print("In Unigram, perp: ", perp_unigram)
 
         # Bigram Model
         elif model.ngram == 2:
+
+            # print("try to match: ", model.ngramDict[('our', 'business')])
             print("In Bigram, perp: ", perplexity)
 
         # Trigram Model
