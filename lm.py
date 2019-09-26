@@ -230,11 +230,9 @@ def calculate_perplexity(models, coefs, data):
 
     perplexity *= -1
     perplexity /= test_size
-    perplexity = math.pow(2,perplexity)
+    perplexity = math.pow(2, perplexity)
                         
-
-    print("final perp: ", perplexity)
-    return 
+    return perplexity
 
 
 # Do not modify this function!
@@ -268,13 +266,13 @@ if __name__ == '__main__':
     test = preprocess(read_file(args.testfile))
 
     # build language models
-    print("111111")
+    # print("111111")
     uniform = LanguageModel(train, ngram=1, min_freq=args.min_freq, uniform=True)
-    print("222222")
+    # print("222222")
     unigram = LanguageModel(train, ngram=1, min_freq=args.min_freq)
-    print("333333")
+    # print("333333")
     bigram = LanguageModel(train, ngram=2, min_freq=args.min_freq)
-    print("444444")
+    # print("444444")
     trigram = LanguageModel(train, ngram=3, min_freq=args.min_freq)
 
     # calculate perplexity on test file
