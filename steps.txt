@@ -61,9 +61,9 @@
   c = add b (we have four of them, one for each ngram)
   d = take log of c
   d is for one token (word), do d for every word in TEST dataset
-  e = add d (number of d is the number of tokens in the TEST dataset)
+  e = add d (number of d is the number of tokens in the TEST data)
   f = e * -1
-  g = f / number of tokens in the test dataset
+  g = f / number of tokens in the test data
   h = 2**g
 
 

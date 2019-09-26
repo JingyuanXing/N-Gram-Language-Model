@@ -21,6 +21,8 @@ import string
 from copy import deepcopy
 import math
 
+### NOTE ###
+# In this implementation, variable "word" actually means tokens in data, which include words, punctuations, etc
 
 class LanguageModel(object):
     """
@@ -172,84 +174,64 @@ def calculate_perplexity(models, coefs, data):
     :param data: test data
     :return: perplexity
     """
-    # change any word that is not in the vocabulary to 'UNK'
-    for line in data:
-        for word in line:
-            if word not in set(models[0].ngramList):
-                pos = line.index(word)
-                line[pos] = 'UNK'
-
-    # added </s> <s> in front of each sentense in data
-    for line in data:
-        line.insert(0, '<s>')
-        line.insert(0, '</s>')
-
-
-    # start t ocalculate perplexity for each Language Model
-    perplexity = 0
     # number of distinct vocabulary, for bigram and trigram smoothing
     vocab_count = len(set(models[0].ngramList))
+    # number of tokens in the test data
+    test_size = len(data[0])
+    testData = data[0]
 
-    for model in models:
-        if model.ngram == 1:
-            # Uniform Model
-            if model.uniform == True:
-                perp_uniform = 1
-                for line in data:
-                    for word in line:
-                        vocab_count = len(set(model.ngramList))
-                        perp_uniform *= 1/vocab_count
-                        # print("In Uniform, perp: ", perp_uniform)
-                perplexity += math.log(coefs[0] * perp_uniform)
-                print("unif: ", perplexity)
+    # change any word that is not in the vocabulary to 'UNK'
+    for word in testData:
+        if word not in set(models[0].ngramList):
+            pos = testData.index(word)
+            testData[pos] = 'UNK'
 
-            # Unigram Model
-            else:
-                perp_unigram = 1
-                for line in data:
-                    for word in line[2:]:
-                        count_i = model.ngramDict[word]
-                        total_count = len(model.ngramList)
-                        perp_unigram *= count_i/total_count
-                        # print(word)
-                        # print("freq: ", model.ngramDict[word])
-                        # print("prob: ", model.ngramDict[word]/len(model.ngramList))
-                        # print("In Unigram, perp: ", perp_unigram)
-                perplexity += math.log(coefs[1] * perp_unigram)
-                print("unig: ", perplexity)
+    # added </s> <s> in front of each sentense in data
+    testData.insert(0, '<s>')
+    testData.insert(0, '</s>')
 
-        # Bigram Model
-        elif model.ngram == 2:
-            perp_bigram = 1
-            for line in data:
-                for word in line[2:]:
-                    pos = line.index(word)
-                    count_i_prev = model.ngramDict[(line[pos-1], word)] + 1
-                    count_prev = model.ngramDict[line[pos-1]] + vocab_count
-                    perp_bigram *= count_i_prev/count_prev
-                    # print("tuple: ", (line[pos-1], word))
-                    # print("count_tuple: ", count_i_prev)
-                    # print(line[pos-1])
-                    # print("count_prev: ", count_prev)
-                    # print("In Bigram, perp: ", perp_bigram)
-                    # print('\n')
-            perplexity += math.log(coefs[2] * perp_bigram)
-            print("bi: ", perplexity)
 
-        # Trigram Model
-        elif model.ngram == 3:
-            perp_trigram = 1
-            for line in data:
-                for word in line[2:]:
-                    pos = line.index(word)
-                    count_i_prev_prev = model.ngramDict[(line[pos-2], line[pos-1], word)] + 1
-                    count_prev_prev = model.ngramDict[(line[pos-2], line[pos-1])] + vocab_count
-                    perp_trigram *= count_i_prev_prev/count_prev_prev
-                    # print("this three tuple: ", count_i_prev_prev)
-                    # print("prev two tuple: ", count_prev_prev)
-                    # print("In Trigram, perp: ", perp_trigram)
-            perplexity += math.log(coefs[3] * perp_trigram)
-            print("tri: ", perplexity)
+    # perplexity tracker, for adding each logged wordPerp, and for performing further calculations
+    perplexity = 0
+
+    # for each word (token) in test data
+    for word in testData[2:]:
+        # use each ngram model
+        wordPerp = 0
+        for model in models:
+            if model.ngram == 1:
+                # Uniform Model
+                if model.uniform == True:
+                    wordPerp += (coefs[0] * (1/vocab_count))
+                # Unigram Model
+                else:
+                    count_i = model.ngramDict[word]
+                    total_count = len(model.ngramList)
+                    wordPerp += (coefs[1] * (count_i/total_count))
+
+
+            # Bigram Model
+            elif model.ngram == 2:
+                pos = testData.index(word)
+                count_i_prev = model.ngramDict[(testData[pos-1], word)] + 1
+                count_prev = model.ngramDict[testData[pos-1]] + vocab_count
+                wordPerp += (coefs[2] * (count_i_prev/count_prev))
+
+
+            # Trigram Model
+            elif model.ngram == 3:
+                pos = testData.index(word)
+                count_i_prev_prev = model.ngramDict[(testData[pos-2], testData[pos-1], word)] + 1
+                count_prev_prev = model.ngramDict[(testData[pos-2], testData[pos-1])] + vocab_count
+                wordPerp += (coefs[3] * (count_i_prev_prev/count_prev_prev))
+
+        wordPerp = math.log(wordPerp)
+        perplexity += wordPerp
+
+    perplexity *= -1
+    perplexity /= test_size
+    perplexity = math.pow(2,perplexity)
+                        
 
     print("final perp: ", perplexity)
     return 
