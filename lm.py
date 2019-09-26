@@ -18,8 +18,9 @@ import argparse
 from utils import *
 from collections import Counter
 import string
-from copy import deepcopy
 import math
+import time
+from copy import deepcopy
 
 ### NOTE ###
 # In this implementation, variable "word" actually means tokens in data, which include words, punctuations, etc
@@ -49,6 +50,7 @@ class LanguageModel(object):
         self.least_freq_to_UNK()
         self.divide_each_sentense()
         self.build()
+        self.most_common_words(10)
 
 
     # takes in self.corpus
@@ -114,13 +116,17 @@ class LanguageModel(object):
         """
         Build LM from text corpus
         """
+
         self.ngramList = []
+        self.uniList = []
 
         # build the list for uniform and unigram model
         if (self.ngram == 1):
             for sentense in self.eachSentense:
                 for word in sentense:
                     self.ngramList.append(word)
+                    # for most common word count
+                    self.uniList.append(word)
 
         # build the list for bigram model
         if (self.ngram == 2):
@@ -131,6 +137,8 @@ class LanguageModel(object):
                     self.ngramList.append(sentense[pos-1])
                     # two words tuple, i and i-1
                     self.ngramList.append(tuple([sentense[pos-1], word]))
+                    # for most common word count
+                    self.uniList.append(word)
 
 
         # build the list for trigram model
@@ -142,10 +150,14 @@ class LanguageModel(object):
                     self.ngramList.append(tuple([sentense[pos-2], sentense[pos-1]]))
                     # three words tuple, i, i-1, i-2
                     self.ngramList.append(tuple([sentense[pos-2], sentense[pos-1], word]))
+                    # for most common word count
+                    self.uniList.append(word)
 
         # print(self.ngramList)
         self.ngramDict = Counter(self.ngramList)
         # print(self.ngramDict)
+        self.uniDict = Counter(self.uniList)
+    
 
 
     def most_common_words(self, k):
@@ -155,10 +167,18 @@ class LanguageModel(object):
         Sort according to ascending alphabet order when multiple words have same frequency
         :return: list[tuple(token, freq)] of top k most common tokens
         """
+
+        try:
+            del self.uniDict['</s>']
+            del self.uniDict['<s>']
+        except:
+            pass
+        self.dictkeyvalueSorted = sorted(self.uniDict.items(), key=lambda kv: kv[1],reverse=True)
+
         result = []
-        for word in self.ngramDict[:k]:
-            result.append(tuple([word, self.ngramDict[word]]))
-        
+        for keyvaluepair in self.dictkeyvalueSorted[:k]:
+            result.append(keyvaluepair)
+        # print("most common word result: ", result)
         return result
 
 def testdata_flat(data):
@@ -205,8 +225,9 @@ def calculate_perplexity(models, coefs, data):
     test_size = len(testData)
 
     # change any word that is not in the vocabulary to 'UNK'
+    trainSet = set(models[0].ngramList)
     for word in testData:
-        if word not in set(models[0].ngramList):
+        if word not in trainSet:
             pos = testData.index(word)
             testData[pos] = 'UNK'
 
@@ -226,6 +247,7 @@ def calculate_perplexity(models, coefs, data):
                     # Uniform Model
                     if model.uniform == True:
                         wordPerp += (coefs[0] * (1/vocab_count))
+        
                     # Unigram Model
                     else:
                         count_i = model.ngramDict[word]
@@ -247,6 +269,7 @@ def calculate_perplexity(models, coefs, data):
                     count_i_prev_prev = model.ngramDict[(line[pos-2], line[pos-1], word)] + 1
                     count_prev_prev = model.ngramDict[(line[pos-2], line[pos-1])] + vocab_count
                     wordPerp += (coefs[3] * (count_i_prev_prev/count_prev_prev))
+            
 
             wordPerp = math.log(wordPerp)
             perplexity += wordPerp
