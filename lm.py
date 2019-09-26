@@ -50,7 +50,7 @@ class LanguageModel(object):
         self.least_freq_to_UNK()
         self.divide_each_sentense()
         self.build()
-        self.most_common_words(10)
+        self.most_common_words(100)
 
 
     # takes in self.corpus
@@ -123,6 +123,8 @@ class LanguageModel(object):
             for sentense in self.eachSentense:
                 for word in sentense:
                     self.ngramList.append(word)
+            if self.uniform == True:
+                self.ngramList = set(self.ngramList)
 
 
         # build the list for bigram model
@@ -160,6 +162,7 @@ class LanguageModel(object):
         Sort according to ascending alphabet order when multiple words have same frequency
         :return: list[tuple(token, freq)] of top k most common tokens
         """
+    
         self.newDict = deepcopy(self.ngramDict)
 
         try:
