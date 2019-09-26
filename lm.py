@@ -19,6 +19,7 @@ from utils import *
 from collections import Counter
 import string
 from copy import deepcopy
+import math
 
 
 class LanguageModel(object):
@@ -185,7 +186,7 @@ def calculate_perplexity(models, coefs, data):
 
 
     # start t ocalculate perplexity for each Language Model
-    perplexity = 1
+    perplexity = 0
     # number of distinct vocabulary, for bigram and trigram smoothing
     vocab_count = len(set(models[0].ngramList))
 
@@ -199,6 +200,8 @@ def calculate_perplexity(models, coefs, data):
                         vocab_count = len(set(model.ngramList))
                         perp_uniform *= 1/vocab_count
                         # print("In Uniform, perp: ", perp_uniform)
+                perplexity += math.log(coefs[0] * perp_uniform)
+                print("unif: ", perplexity)
 
             # Unigram Model
             else:
@@ -212,6 +215,8 @@ def calculate_perplexity(models, coefs, data):
                         # print("freq: ", model.ngramDict[word])
                         # print("prob: ", model.ngramDict[word]/len(model.ngramList))
                         # print("In Unigram, perp: ", perp_unigram)
+                perplexity += math.log(coefs[1] * perp_unigram)
+                print("unig: ", perplexity)
 
         # Bigram Model
         elif model.ngram == 2:
@@ -228,6 +233,8 @@ def calculate_perplexity(models, coefs, data):
                     # print("count_prev: ", count_prev)
                     # print("In Bigram, perp: ", perp_bigram)
                     # print('\n')
+            perplexity += math.log(coefs[2] * perp_bigram)
+            print("bi: ", perplexity)
 
         # Trigram Model
         elif model.ngram == 3:
@@ -241,7 +248,10 @@ def calculate_perplexity(models, coefs, data):
                     # print("this three tuple: ", count_i_prev_prev)
                     # print("prev two tuple: ", count_prev_prev)
                     # print("In Trigram, perp: ", perp_trigram)
+            perplexity += math.log(coefs[3] * perp_trigram)
+            print("tri: ", perplexity)
 
+    print("final perp: ", perplexity)
     return 
 
 

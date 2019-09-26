@@ -53,7 +53,22 @@
   calculate perplexity for uniorm, unigram, bigram, trigram,
   according to dictionary counts
 
-- NOW: take care of zero appearence problem using smoothing
+- Take care of zero appearence problem using laplace smoothing (+1 to the top, +V to the bottom)
+
+- Math:
+  a = get probability for each individual word for each ngram
+  b = multiply a with coef
+  c = add b (we have four of them, one for each ngram)
+  d = take log of c
+  d is for one token (word), do d for every word in TEST dataset
+  e = add d (number of d is the number of tokens in the TEST dataset)
+  f = e * -1
+  g = f / number of tokens in the test dataset
+  h = 2**g
+
+
+
+
 
 
 
