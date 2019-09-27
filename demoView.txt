@@ -1,3 +1,6 @@
+#### this model is not used eventually. This is just some intermediate thoughts ####
+
+
 Self.beginEndFlat
 [<s> the dog barked </s> <s> the cat meowed </s> <s> the cat mowed </s>]
 
@@ -26,4 +29,7 @@ self.ngramList = [(</s>, <s>) (<s>, the) (the, dog)
                   (</s>, <s>, the) (<s>, the, dog) (the, dog, barked)
                   (</s>, <s>, the) (<s>, the, cat) (the, cat, meowed)
                   (</s>, <s>, the) (<s>, the, cat) (the, cat, meowed)]]
+
+
+
 
