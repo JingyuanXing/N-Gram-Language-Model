@@ -21,6 +21,7 @@ import string
 import math
 import time
 from copy import deepcopy
+from collections import defaultdict
 
 ### NOTE ###
 # In this implementation, variable "word" actually means tokens in data, which include words, punctuations, etc
@@ -45,32 +46,11 @@ class LanguageModel(object):
         self.min_freq = min_freq
         self.uniform = uniform
 
-        self.add_beginAndEnd_to_each_sentense()
+        
         self.flatten_text()
         self.least_freq_to_UNK()
-        # self.divide_each_sentense()
         self.build()
-        self.most_common_words(100)
-
-
-    # takes in self.corpus
-    # gives out self.beginEnd, with <s> and </s> properly added
-    def add_beginAndEnd_to_each_sentense(self):
-
-        # for each of the 50 lists, add <s> to front, add </s> to end
-        for line in self.corpus:
-            # add '</s>', '<s>' to the front
-            line.insert(0,'<s>')
-            line.insert(0,'</s>')
-
-            # # add two elements '</s>', '<s>' after each period
-            # for i in range(len(line)):
-            #     if line[i] == '.':
-            #         line[i+1:i+1] = ('</s>', '<s>')
-
-            # # get rid of the last two elements, '<s>', '</s>'
-            # if line[-2] =='</s>' and line[-1] == '<s>':
-            #     line = line[:len(line)-2]
+        self.most_common_words(50)
 
 
     # takes in self.beginEnd
@@ -87,28 +67,23 @@ class LanguageModel(object):
     # gives out self.UNKreplaced, change any word that appears less than self.min_freq to 'UNK'
     def least_freq_to_UNK(self):
         freqCount = Counter(self.flat)
-        for line in self.corpus:
-            for word in line[2:]:
+        self.UNK = deepcopy(self.corpus)
+        #print(self.UNK)
+        for line in self.UNK:
+            for word in line:
                 pos = line.index(word)
                 if freqCount[word] < self.min_freq:
                     line[pos] = 'UNK'
 
-    # takes in self.UNKreplaced
-    # self.UNKreplacedBeginEnd, added </s> to beginning of self.UNKreplaced, and got rid of the very last </s>
-    # gives out self.eachSentense, which is a list list of each sentense, with </s> <s> in front, and nothing in end
-    # def divide_each_sentense(self):
+    # takes in self.corpus
+    # gives out self.beginEnd, with <s> and </s> properly added
+    def add_beginAndEnd(self):
 
-    #     # preprocess so that each sentense begin with </s> <s> and end with nothing
-    #     self.beginEndFlat.insert(0, '</s>')
-    #     self.beginEndFlat = self.beginEndFlat[:-1]
-
-    #     # turn each sentense into a list
-    #     self.eachSentense = []
-    #     for word in self.beginEndFlat:
-    #         if word == '</s>':
-    #             newSentense = []
-    #             self.eachSentense.append(newSentense)
-    #         newSentense.append(word)
+        # for each of the 50 lists, add <s> to front, add </s> to end
+        for line in self.inputText:
+            # add '</s>', '<s>' to the front
+            line.insert(0,'<s>')
+            line.insert(0,'</s>')
 
 
 
@@ -119,10 +94,13 @@ class LanguageModel(object):
 
         self.ngramList = []
         self.commonList = []
-
+        self.inputText = deepcopy(self.UNK)
+    
+        
         # build the list for uniform and unigram model
         if (self.ngram == 1):
-            for line in self.corpus:
+            self.add_beginAndEnd()
+            for line in self.inputText:
                 for word in line[2:]:
                     self.ngramList.append(word)
                     self.commonList.append(word)
@@ -133,7 +111,8 @@ class LanguageModel(object):
 
         # build the list for bigram model
         if (self.ngram == 2):
-            for line in self.corpus:
+            self.add_beginAndEnd()
+            for line in self.inputText:
                 for word in line[2:]:
                     pos = line.index(word)
                     # single words, i
@@ -143,12 +122,13 @@ class LanguageModel(object):
     
                 for word in line[3:]:
                     pos = line.index(word)
-                    self.commonList.append(line[pos-1]+" "+word)
+                    self.commonList.append((line[pos-1])+" "+word)
 
 
         # build the list for trigram model
         if (self.ngram == 3):
-            for line in self.corpus:
+            self.add_beginAndEnd()
+            for line in self.inputText:
                 for word in line[2:]:
                     pos = line.index(word)
                     # two words, i-1, i-2
@@ -158,12 +138,11 @@ class LanguageModel(object):
 
                 for word in line[4:]:
                     pos = line.index(word)
-                    self.commonList.append(line[pos-2]+" "+line[pos-1]+" "+word)
+                    self.commonList.append((line[pos-2])+" "+(line[pos-1])+" "+word)
         
-
-        # print(self.ngramList)
+        # print(self.commonList)
         self.ngramDict = Counter(self.ngramList)
-        # print(self.ngramDict)
+        # print(len(self.ngramDict))
         self.commonDict = Counter(self.commonList)
     
 
@@ -176,40 +155,26 @@ class LanguageModel(object):
         :return: list[tuple(token, freq)] of top k most common tokens
         """
 
-        self.dictkeyvalueSorted = sorted(self.commonDict.items(), key=lambda kv: kv[1],reverse=True)
-
-        result = []
-        for keyvaluepair in self.dictkeyvalueSorted[:k]:
-            result.append(keyvaluepair)
-        # print("most common word result: ", result)
-        return result
-
-# def testdata_flat(data):
-#     flat = []
-#     # flatten data
-#     for line in data:
-#         for word in line:
-#             flat.append(word)
-#     # add </s> <s> to test data, behind periods
-#     for i in range(len(testData)):
-#         if testData[i] == '.':
-#             testData[i+1:i+1] = ('</s>', '<s>')
-#     # add </s> <s> to very front
-#     testData.insert(0, '<s>')
-#     testData.insert(0, '</s>')
-#     # remove </s> <s> at the very end
-#     if testData[-2] =='</s>' and testData[-1] == '<s>':
-#         testData = testData[:len(testData)-2]
-#     return flat
-
-# def testdata_cutToSentence(testData):
-#     testData_divided = []
-#     for word in testData:
-#         if word == '</s>':
-#             newSentense = []
-#             testData_divided.append(newSentense)
-#         newSentense.append(word)
-#     return testData_divided
+        # print("tuples: ", self.commonDict.items())
+        
+        d = defaultdict(int)
+        for line in self.UNK:
+            if self.ngram == 1:
+                for word in line:
+                    if self.uniform == True:
+                        d[word] = 1
+                    else:
+                        d[word] += 1
+            if self.ngram == 2:
+                for pair in zip(line[:-1],line[1:]):
+                    d['{} {}'.format(pair[0],pair[1])] += 1
+            if self.ngram == 3:
+                for tri in zip(line[:-2],line[1:-1],line[2:]):
+                    d['{} {} {}'.format(tri[0],tri[1],tri[2])] += 1
+        t = sorted(d.items(), key=lambda x: x[0])
+        l = sorted(t, key=lambda kv: kv[1],reverse=True)
+        
+        return l[:k]
     
 
 def calculate_perplexity(models, coefs, data):
@@ -222,15 +187,12 @@ def calculate_perplexity(models, coefs, data):
     """
     # number of distinct vocabulary, for bigram and trigram smoothing
     vocab_count = len(models[0].ngramList)
-    # number of tokens in the test data
-    # testData = testdata_flat(data)
 
     test_size = 0
     for line in data:
         test_size += len(line)
 
     # change any word that is not in the vocabulary to 'UNK'
-
     trainSet = set(models[0].ngramList)
     for line in data:
         for word in line:
@@ -238,7 +200,6 @@ def calculate_perplexity(models, coefs, data):
                 pos = line.index(word)
                 line[pos] = 'UNK'
 
-    # testData = testdata_cutToSentence(testData)
 
     for line in data:
         line.insert(0, '<s>')
